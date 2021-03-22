@@ -2,7 +2,7 @@ import requests as rq
 import json
 
 URL = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
-cards = {}
+cards = []
 players = []
 
 def createDeck():
@@ -22,8 +22,13 @@ def shuffleDeck(id):
 def drawCard(id, player, count): 
     card = rq.get(url="https://deckofcardsapi.com/api/deck/"+str(id)+"/draw/?count="+str(count))
     card = card.json()
-    cards[player] = card["cards"]["value"], card["cards"]["suit"]
-    print(str(player)+" a ", card["cards"]["value"], " of ", card["cards"]["suit"])
+    for x in cards[]
+        try:
+            cards.append({x:str(int(card["cards"]["value"])) + card["cards"]["suit"]})
+        except ValueError:
+            cards.append({x:str(int(card["cards"]["value"])) + card["cards"]["suit"]})
+    #card["cards"]["value"], card["cards"]["suit"]
+    print(str(player)+" drew a ", card["cards"]["value"], " of ", card["cards"]["suit"])
 
 def createPlayers(names):
     for x in names:
