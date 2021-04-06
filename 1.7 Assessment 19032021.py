@@ -4,6 +4,7 @@ import json
 URL = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
 cards = []
 players = []
+gameLoop = True
 
 def createDeck():
     deck = rq.get(url=URL)
@@ -19,21 +20,53 @@ def shuffleDeck(id):
     deck = deck.json()
     print("SUCCESS! The deck has been shuffled.")
 
-def drawCard(id, player, count): 
+def getPlayerTotal(player):
+    for i in range(len(cards)):
+        return cards
+    else:
+        pass
+        
+def drawCard(id, player, count):
+    print("start")
     card = rq.get(url="https://deckofcardsapi.com/api/deck/"+str(id)+"/draw/?count="+str(count))
     card = card.json()
-    for x in cards[]
-        try:
-            cards.append({x:str(int(card["cards"]["value"])) + card["cards"]["suit"]})
-        except ValueError:
-            cards.append({x:str(int(card["cards"]["value"])) + card["cards"]["suit"]})
     #card["cards"]["value"], card["cards"]["suit"]
-    print(str(player)+" drew a ", card["cards"]["value"], " of ", card["cards"]["suit"])
+    for c in range(count):
+        card_value = card["cards"][c]["value"]
+        card_suit = card["cards"][c]["suit"]
+        if len(cards) > 0:
+            if card_value == "JACK":
+                card_number = 11
+            elif card_value == "QUEEN":
+                card_number = 12
+            elif card_value == "KING":
+                card_number = 13
+            elif card_value == "ACE":
+                card_number = 1
+            else:
+                card_number = card_value
+            for x in range(len(cards)):
+                t = cards[x]
+                print('1')
+                t[player].append([card_value + " " + card_suit, int(card_number)])
+                cards[x] = t                    
+        print(str(player)+" drew a ", card_value ," of ", card_suit)
+    print(cards)
+    print("end")
+            
+def hit(player):
+    global deck_id
+    drawCard(deck_id, player, 1)
+    
 
 def createPlayers(names):
     for x in names:
         players.append(x)
+        cards.append({x:[]})
+        
 
-createPlayers(input().split(", "))
-print(players)
-drawCard(deck_id, players[0], 1)
+while gameLoop:
+    createPlayers(str(input()).split(", "))
+    print(cards)
+    for i in players:
+        drawCard(deck_id, i, 2)
