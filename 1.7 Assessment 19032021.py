@@ -4,7 +4,9 @@ import json
 URL = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
 cards = []
 players = []
+turns = []
 gameLoop = True
+gameOngoing = False
 
 def createDeck():
     deck = rq.get(url=URL)
@@ -53,7 +55,7 @@ def drawCard(id, player, count):
                 cards[x] = t
             except:
                 pass
-        #print(str(player)+" drew a ", card_value ," of ", card_suit)
+        print(str(player)+" drew a ", card_value ," of ", card_suit)
     #print(cards)
     #print("end")
            
@@ -69,13 +71,7 @@ def createPlayers(names):
         else:
             players.append(x)
             cards.append({x:[]})
-        
-def playerExists(player):
-    for i in player:
-        if i in players:
-            print("Sorry, this person is already playing.")
-        else:
-            createPlayers(player)
+            turns.append({x:1})
 
 def clear():
     i = 100
@@ -83,33 +79,57 @@ def clear():
         print(" ")
         i -= 1
 
+def win():
+    print("you win!")
+    continue_playing = str(input("Would you like to play again? Y/N")).lower()
+    if continue_playing.startswith("y"):
+        clear()
+        cards = []
+        players = []
+        deck_id = createDeck()
+        gameLoop = False
+        gameLoop = True
+    if continue_playing.startswith("n"):
+        gameLoop = False
+        print("Thanks for playing!")
+
+def lose():
+    print("you lost!")
+    continue_playing = str(input("Would you like to play again? Y/N")).lower()
+    if continue_playing.startswith("y"):
+        clear()
+        cards = []
+        players = []
+        deck_id = createDeck()
+        gameLoop = False
+        gameLoop = True
+    if continue_playing.startswith("n"):
+        gameLoop = False
+        print("Thanks for playing!")
+
 while gameLoop:
+    overall_turn = 1
+    current_turn = []
     createPlayers(str(input("Enter your Name:\n")).split(", "))
     for i in players:
         drawCard(deck_id, i, 2)
-    if getPlayerTotal("tom") == 21:
-        print("you win!")
-        continue_playing = str(input("Would you like to play again? Y/N")).lower()
-        if continue_playing.startswith("y"):
-            clear()
-            cards = []
-            players = []
-            deck_id = createDeck()
-            gameLoop = False
-            gameLoop = True
-        if continue_playing.startswith("n"):
-            gameLoop = False
-            print("Thanks for playing!")
-    elif getPlayerTotal("tom") > 21:
-        print("you lost!")
-        continue_playing = str(input("Would you like to play again? Y/N")).lower()
-        if continue_playing.startswith("y"):
-            clear()
-            cards = []
-            players = []
-            deck_id = createDeck()
-            gameLoop = False
-            gameLoop = True
-        if continue_playing.startswith("n"):
-            gameLoop = False
-            print("Thanks for playing!")
+    gameOngoing = True
+    while gameOngoing:
+        for x in range(len(turns)):
+            for player in players:  
+                current_turn.append(turns[x][player])
+                while turns[x][player] == overall_turn:
+                    action = str(input("It is " + player +"'s turn.\n"+player+"'s deck total is "+str(getPlayerTotal(player))+"\nAre you going to hit or stand? \nType which action you would like to do. If you need any help type \nhelp.\n"))
+                    if action.lower() == "hit":
+                        hit(player)
+                        turns[x][player] += 1
+                    elif action.lower() == "stand":
+                        print(player, "stood.")
+                        turns[x][player] += 1
+                    elif action.lower() == "help":
+                        print("debug help")
+                    else:
+                        print("This is not a valid action try again!")
+        if sum(current_turn)/len(turns) == overall_turn:
+            overall_turn += 1
+            print("meow", overall_turn)
