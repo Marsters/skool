@@ -4,7 +4,6 @@ import json
 URL = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
 cards = []
 players = []
-turns = []
 gameLoop = True
 gameOngoing = False
 
@@ -25,8 +24,11 @@ def shuffleDeck(id):
 def getPlayerTotal(player):
     t = 0
     for i in range(len(cards)):
-        for ii in range(len(cards[i][player])):
-            t += cards[i][player][ii][1]
+        try:
+            for ii in range(len(cards[i][player])):
+                t += cards[i][player][ii][1]
+        except:
+            pass
     return t
  
 def drawCard(id, player, count):
@@ -62,8 +64,7 @@ def drawCard(id, player, count):
 def hit(player):
     global deck_id
     drawCard(deck_id, player, 1)
-    
-
+    print(player + "'s total is now " +str(getPlayerTotal(player)))
 def createPlayers(names):
     for x in names:
         if x in players:
@@ -71,7 +72,6 @@ def createPlayers(names):
         else:
             players.append(x)
             cards.append({x:[]})
-            turns.append({x:1})
 
 def clear():
     i = 100
@@ -108,28 +108,24 @@ def lose():
         print("Thanks for playing!")
 
 while gameLoop:
-    overall_turn = 1
-    current_turn = []
     createPlayers(str(input("Enter your Name:\n")).split(", "))
     for i in players:
         drawCard(deck_id, i, 2)
     gameOngoing = True
     while gameOngoing:
-        for x in range(len(turns)):
-            for player in players:  
-                current_turn.append(turns[x][player])
-                while turns[x][player] == overall_turn:
-                    action = str(input("It is " + player +"'s turn.\n"+player+"'s deck total is "+str(getPlayerTotal(player))+"\nAre you going to hit or stand? \nType which action you would like to do. If you need any help type \nhelp.\n"))
-                    if action.lower() == "hit":
-                        hit(player)
-                        turns[x][player] += 1
-                    elif action.lower() == "stand":
-                        print(player, "stood.")
-                        turns[x][player] += 1
-                    elif action.lower() == "help":
-                        print("debug help")
-                    else:
-                        print("This is not a valid action try again!")
-        if sum(current_turn)/len(turns) == overall_turn:
-            overall_turn += 1
-            print("meow", overall_turn)
+        for player in players:
+            turn = player
+            while turn == player:
+                action = str(input("It is " + player +"'s turn.\n"+player+"'s deck total is "+ str(getPlayerTotal(player)) +"\nAre you going to hit or stand? \nType which action you would like to do. If you need any help type \nhelp.\n"))
+                if action.lower() == "hit":
+                    hit(player)
+                    turn = 0
+                    pass
+                elif action.lower() == "stand":
+                    print(player, "stood.")
+                    turn = 0
+                    pass
+                elif action.lower() == "help":
+                    print("debug help")
+                else:
+                    print("This is not a valid action try again!")
