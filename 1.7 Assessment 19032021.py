@@ -1,9 +1,14 @@
 import requests as rq
 import json
+import time
+import random
 
 URL = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
 cards = []
 players = []
+winners = []
+stand = []
+stand_totals = []
 gameLoop = True
 gameOngoing = False
 
@@ -79,53 +84,73 @@ def clear():
         print(" ")
         i -= 1
 
-def win():
-    print("you win!")
-    continue_playing = str(input("Would you like to play again? Y/N")).lower()
-    if continue_playing.startswith("y"):
-        clear()
-        cards = []
-        players = []
-        deck_id = createDeck()
-        gameLoop = False
-        gameLoop = True
-    if continue_playing.startswith("n"):
-        gameLoop = False
-        print("Thanks for playing!")
-
-def lose():
-    print("you lost!")
-    continue_playing = str(input("Would you like to play again? Y/N")).lower()
-    if continue_playing.startswith("y"):
-        clear()
-        cards = []
-        players = []
-        deck_id = createDeck()
-        gameLoop = False
-        gameLoop = True
-    if continue_playing.startswith("n"):
-        gameLoop = False
-        print("Thanks for playing!")
-
-while gameLoop:
-    createPlayers(str(input("Enter your Name:\n")).split(", "))
-    for i in players:
-        drawCard(deck_id, i, 2)
-    gameOngoing = True
-    while gameOngoing:
-        for player in players:
-            turn = player
-            while turn == player:
+createPlayers(str(input("Enter your Name:\n")).split(", "))
+for i in players:
+    drawCard(deck_id, i, 2)
+gameOngoing = True
+while gameOngoing:
+    if len(players) == 1 and len(stand) < 1:
+        player = players[0]
+        if getPlayerTotal(player) < 21 and getPlayerTotal(player) >= 0:
+            if len(player) > 0:
                 action = str(input("It is " + player +"'s turn.\n"+player+"'s deck total is "+ str(getPlayerTotal(player)) +"\nAre you going to hit or stand? \nType which action you would like to do. If you need any help type \nhelp.\n"))
                 if action.lower() == "hit":
                     hit(player)
-                    turn = 0
                     pass
                 elif action.lower() == "stand":
-                    print(player, "stood.")
-                    turn = 0
-                    pass
+                    print(str(player), "stood.")
+                    cpu_hand = round(random.randint(13, 21))
+                    if cpu_hand > getPlayerTotal(player):
+                        print("Game Over! The CPU had more than you. \nCPU: "+str(cpu_hand)+ " "+player+": "+str(getPlayerTotal(player)))
+                        gameOngoing = False
+                    elif cpu_hand < getPlayerTotal(player):
+                        print("Game Over! You had more than the CPU!\nCPU: "+str(cpu_hand)+ " "+player+": "+str(getPlayerTotal(player)))
+                        gameOngoing = False
+                    elif cpu_hand == getPlayerTotal(player):
+                        print("Game Over! You drew with the CPU!\nCPU: "+str(cpu_hand)+ " "+player+": "+str(getPlayerTotal(player)))
+                        gameOngoing = False
                 elif action.lower() == "help":
                     print("debug help")
                 else:
                     print("This is not a valid action try again!")
+        elif getPlayerTotal(player) == 21:
+            print("Game Over! You got blackjack.")
+            gameOngoing = False
+        else:
+            print("Game Over! You Busted.")
+            gameOngoing = False
+    else:
+        if len(players) > 0:
+            for player in players:
+                turn = player
+                while turn == player:
+                    if getPlayerTotal(player) < 21 and getPlayerTotal(player) >= 0:
+                        action = str(input("It is " + player +"'s turn.\n"+player+"'s deck total is "+ str(getPlayerTotal(player)) +"\nAre you going to hit or stand? \nType which action you would like to do. If you need any help type \nhelp.\n"))
+                        if action.lower() == "hit":
+                            hit(player)
+                            turn = 0
+                            pass
+                        elif action.lower() == "stand":
+                            players.remove(player)
+                            stand.append(player)
+                            turn = 0
+                            pass
+                        elif action.lower() == "help":
+                            print("debug help")
+                        else:
+                            print("This is not a valid action try again!")
+                    elif getPlayerTotal(player) == 21:
+                        print("Game Over! "+player+" got blackjack.")
+                        gameOngoing = False
+                    elif getPlayerTotal(player) > 21:
+                        print("Uh oh "+player+"! You Busted.")
+                        turn = 0
+                        players.remove(player)
+        elif len(stand) > 0:
+            for player in stand:
+                stand_totals.append(getPlayerTotal(players)
+            stand_totals.sort()
+            for p in stand:
+                if getPlayerTotal(p) == stand_totals[len(stand_totals)-1]:
+                    print(p+" won! They had the highest hand. \n")
+                    gameOngoing = False
